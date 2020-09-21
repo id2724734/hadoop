@@ -1,0 +1,108 @@
+[Hive]
+
+1) 하둡 기반에서 실행되는 라이브러리
+
+2) Java 코드 대신 SQL 구물 사용 (Hive)
+
+3) 설치 및 세팅
+		- http://hive.apache.org 
+      
+				Downloads > 2.대 버전 
+      
+				http://mirror.navercorp.com/apache/hive/hive-2.3.7/
+				apache-hive-2.3.7-bin.tar.gz 다운로드 
+      
+				*WinSCP로 옮기기 
+				/root/ 폴더에
+      
+		- 압축 풀기 
+				tar zxvf 하이브 파일명 
+				mv apache-hive-2.3.7-bin hive2 
+				 
+		mysql 준비
+				
+		환경변수에 추가
+				gedit /etc/profile
+				-------------------------
+				export HIVE_HOME=/root/hive2
+				export PATH=$PATH:$HIVE_HOME/bin
+						
+				source /etc/profile
+				stop-dfs.sh
+				stop-yarn.sh
+				reboot
+						
+				start-dfs.sh
+				start-yarn.sh
+						
+				hive
+				quit;
+						
+				./hive
+						
+		- mysql connection 파일을 hive2/lib 에 복사
+		- hive2/conf 로 이동
+				cd hive2/conf 
+				gedit hive-site.xml
+										
+						<?xml version="1.0" encoding="UTF-8" standalone="no" ?>
+						<?xml-stylesheet type="text/xsl" href="configuration.xsl" ?>
+
+						<configuration>
+								<property>
+										<name>hive.metastore.local</name>
+										<value>true</value>
+								</property>
+								<property>
+										<name>javax.jdo.option.ConnectionURL</name>
+										<value>jdbc:mysql://mysql_ip:3306/hive?useSSL=false&amp;createDatabaseIfNotExist=true&amp;serverTimezone=UTC&amp;allowPublickeyRetrieval=true</value>
+								</property>
+								<property>
+										<name>javax.jdo.option.ConnectionDriverName</name>
+										<value>com.mysql.jdbc.Driver</value>
+								</property>
+								<property>
+										<name>javax.jdo.option.ConnectionUserName</name>
+										<value>hive</value> 
+								</property>
+								<property>
+										<name>javax.jdo.option.ConnectionPassword</name>
+										<value>hive</value>
+								</property>
+						</configuration>						
+						
+		- mysql
+				계정 생성
+						mysql -uroot -p1111;
+						create user hive@localhost identified by 'hive';
+						grant all privileges on hive.* to hive@localhost;
+						grant all privileges on *.* to 'hive'@'%' identified by 'hive';
+						flush privileges;
+						exit
+						
+				DB 생성
+						mysql -uhive -phive
+						create database hive;
+						
+				윈도우 방화벽 포트 개방
+				
+4) MetaStore 초기화 작업
+		schematool -initSchema -dbType mysql
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+				
+						
+						
+						
+						
+						
