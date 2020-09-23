@@ -1,0 +1,100 @@
+(6) Pig
+		1) 다운로드 및 세팅
+				- http://mirror.navercorp.com/apache/pig/pig-0.17.0/
+				- pig-0.17.0.tar.gz 다운  --> 리눅스의 root로 전송
+				- 압축 풀기 : tar zxvf pig-0.17.0.tar.gz
+				- 폴더명 pig017로 변경하고 기존 압출파일은 삭제
+						mv pig-0.17.0 pig017
+						rm pig-0.17.0.tar.gz
+				- 환경변수 설정
+						gedit /etc/profile
+						-------------------
+						export PIG_HOME=/root/pig017
+						export PATH=$PATH:$PIG_HOME/bin
+						----------------------------------
+						source /etc/profile
+						stop-dfs.sh
+						stop-yarn.sh
+						reboot
+						
+						start-dfs.sh
+						start-yarn.sh
+						pig
+		
+		2) JobHistoryServer 실행
+				ctrl + c
+				[master@ ]에서
+				mr-jobhistory-daemon.sh start historyserver
+				jps
+				
+		3) 실습 1 : DUMP, STORE
+				- 실습 데이터
+						cat /etc/passwd
+						cp /etc/passwd /root/source/passwd
+						
+						cd source
+						ll
+						
+				- 실습데이터를 hdfs로 업로드
+						hdfs dfs -put /root/source/passwd /upload
+						hdfs dfs -ls /upload
+		
+				- pig에서 작업
+						grunt> 에서
+						A = LOAD '/upload/passwd' using PigStorage(':');
+						DUMP A;
+						
+						B = FOREACH A GENERATE $0 AS id;
+						DUMP B;
+		
+						STORE B INTO '/upload/pig_output/passwd;
+						
+						다른 터미널에서
+						
+						// 저장 됐는지 확인
+						hdfs dfs -ls /upload/pig_output/passwd
+						// 내용 확인
+						hdfs dfs -cat /upload/pig_output/passwd/part-m-00000
+						
+		4) 실습 2 : wordcount
+				- 샘플 데이터를 hdfs로 전송
+						// README.txt가 있는지 확인
+						hdfs dfs -ls /upload
+						
+						// 있으면 안해도 되용
+						hdfs dfs -put $HADOOP_HOME/README.txt /upload
+						
+				- 맵리듀스 모드로 pig 실행
+						// pig가 꺼져있다면 이걸로 실행하고 켜져있으면 그냥 하던 곳에서 바로 하면 됨
+						pig -x mapreduce  	(사실 pig 만 실행해도 자동으로 되긴 함)
+						// pig -x local
+				
+				- 샘플 데이터를 A 변수에 로드 후 단어 수 집계
+						grant> 에서
+						
+						A = LOAD '/upload/README.txt';
+						
+						// README.txt 에서 한 단어씩 뽑아서 한 줄씩 뽑아서 B에 저장
+						B = FOREACH A GENERATE FLATTEN(TOKENIZE((chararray)$0)) AS word;
+						DUMP B;
+						
+						// 단어 별로 묶음
+						C = GROUP B BY word;
+						
+						// 단어로 묶여있는 그룹별로 숫자를 세서 저장
+						D = FOREACH C GENERATE group AS word, COUNT($1) AS count;
+						
+						STORE D INTO '/upload/pig_output/readme';
+						
+				- hdfs에서 확인
+						다른 터미널에서
+						
+						hdfs dfs -ls /upload/pig_output/readme     // 2개 뜨면 성공
+						// 단어 count 보기
+						hdfs dfs -cat /upload/pig_output/readme/part-r-00000
+
+		
+		
+		
+				
+				
