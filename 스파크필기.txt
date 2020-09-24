@@ -1,0 +1,78 @@
+(7)스파크
+		1) 설치 
+				- 프로그램 준비 
+						http://spark.apache.org 
+						Download spark 버튼 클릭
+								: 2.4.7 버전 
+								: spark-2.4.7-bin-hadoop2.7.tgz 클릭 후 다운!
+							  
+						*못 찾으면 여기~~~~~~					   https://www.apache.org/dyn/closer.lua/spark/spark-2.4.7/spark-2.4.7-bin-hadoop2.7.tgz
+					   **혹시 모르니 3.대 버전도 받아두자.	https://www.apache.org/dyn/closer.lua/spark/spark-3.0.1/spark-3.0.1-bin-hadoop2.7.tgz
+			  
+				- WinSCP로 tgz파일 옮기기 (/root/)
+						압축 풀기 
+						tar zxvf spark-2.4.7-bin-hadoop2.7.tgz
+						mv spark-2.4.7-bin-hadoop2.7 spark 
+						rm spark-2.4.7-bin-hadoop2.7.tgz
+				
+				- 환경 변수 설정
+						gedit /etc/profile
+						-----------------------
+						export SPARK_HOME=/root/spark
+						export PATH=$PATH:$SPARK_HOME/bin:$SPARK_HOME/sbin
+						-------------------------
+						source /etc/profile
+						stop-dfs.sh
+						start-dfs.sh
+						reboot
+						
+						하둡 켜지말고 대기
+						
+				- 환경변수 및 설치 테스트
+						spark-shell : scala언어 사용
+								sc		: SparkContext
+								spark	: SparkSession
+								3+4
+								ctrl + c로 빠져나옴
+								
+						pyspark : python언어 사용
+								sc
+								spark
+								3+4
+								exit()
+						
+						spark-sql : sql언어 사용
+						
+		2) StandAlone 설치
+				free -g
+				grep -c processor /proc/cpuinfo
+				
+				cd $SPARK_HOME/conf
+				cp spark-env.sh.template spark-env.sh
+				
+				gedit spark-env.sh
+				------------------------
+				export SPARK_WORKER_INSTANCES=3
+				------------------------
+				
+				start-master.sh
+				
+				http://localhost:8080
+				http://192.168.10.1:8080
+				
+				start-slave.sh spark://master:7077 -m 512m -c 1
+				
+				jps
+				
+				stop-slave.sh
+				stop-master.sh
+				
+				
+				
+				
+				
+						
+						
+						
+						
+						
